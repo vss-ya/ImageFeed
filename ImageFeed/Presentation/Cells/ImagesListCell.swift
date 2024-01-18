@@ -11,8 +11,14 @@ final class ImagesListCell: UITableViewCell {
     
     static let reuseIdentifier = "ImagesListCell"
 
-    @IBOutlet var cellImage: UIImageView!
-    @IBOutlet var likeButton: UIButton!
-    @IBOutlet var dateLabel: UILabel!
+    @IBOutlet private var cellImage: UIImageView!
+    @IBOutlet private var likeButton: UIButton!
+    @IBOutlet private var dateLabel: UILabel!
+    
+    func configure(image: UIImage?, likeImage: UIImage?, dateString: String) {
+        cellImage.image = image
+        likeButton.setImage(likeImage, for: .normal)
+        dateLabel.text = dateString
+    }
     
 }
