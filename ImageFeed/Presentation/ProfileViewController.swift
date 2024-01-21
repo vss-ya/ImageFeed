@@ -52,7 +52,7 @@ extension ProfileViewController {
         NSLayoutConstraint.activate([
             avatarImageView.widthAnchor.constraint(equalToConstant: 70),
             avatarImageView.heightAnchor.constraint(equalToConstant: 70),
-            avatarImageView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 32),
+            avatarImageView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 17),
             avatarImageView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 16),
             nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 8),
             nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
@@ -63,7 +63,7 @@ extension ProfileViewController {
             descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: 8),
             descriptionLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
-            logoutButton.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 55),
+            logoutButton.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 30),
             logoutButton.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -16),
         ])
     }
