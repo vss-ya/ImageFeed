@@ -9,25 +9,26 @@ import Foundation
 
 extension URLSession {
     
-    func data(
-        for request: URLRequest,
-        completion: @escaping (Result<Data, Error>) -> Void
+    func objectTask<T: Decodable>(
+            with request: URLRequest,
+            completion: @escaping (Result<T, Error>) -> Void
     ) -> URLSessionTask {
-        let callCompletion: (Result<Data, Error>) -> Void = { result in
-            DispatchQueue.main.async {
-                completion(result)
-            }
-        }
         let task = dataTask(with: request) { data, response, error in
             if let error = error {
-                callCompletion(.failure(NetworkError.requestError(error)))
+                completion(.failure(NetworkError.requestError(error)))
                 return
             }
             let statusCode = (response as! HTTPURLResponse).statusCode
-            if 200 ..< 300 ~= statusCode, let data = data {
-                callCompletion(.success(data))
+            if 200..<300 ~= statusCode, let data = data {
+                do {
+                    let decoder = JSONDecoder()
+                    let result = try decoder.decode(T.self, from: data)
+                    completion(.success(result))
+                } catch {
+                    completion(.failure(error))
+                }
             } else {
-                callCompletion(.failure(NetworkError.statusCode(statusCode)))
+                completion(.failure(NetworkError.statusCode(statusCode)))
             }
         }
         task.resume()

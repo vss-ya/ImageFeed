@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
@@ -17,10 +18,28 @@ final class ProfileViewController: UIViewController {
     
     private var safeArea: UILayoutGuide { view.safeAreaLayoutGuide }
     
+    private var profileService: ProfileService = ProfileService.shared
+    private var profileImageService: ProfileImageService = ProfileImageService.shared
+    
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         prepare()
+        updateProfileDetails()
+        
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] in
+                guard let self = self else {
+                    return
+                }
+                self.updateAvatar($0)
+            }
     }
     
 }
@@ -119,6 +138,29 @@ extension ProfileViewController {
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setImage(UIImage(named: "logout_button"), for: .normal)
         logoutButton = btn
+    }
+    
+    private func updateProfileDetails() {
+        let profile = profileService.profile
+        let url = URL(string: profileImageService.avatarURL ?? "")
+        nameLabel.text = profile?.name
+        loginNameLabel.text = profile?.loginName
+        descriptionLabel.text = profile?.bio
+        updateAvatar(url: url)
+    }
+    
+    private func updateAvatar(_ notification: Notification) {
+        let url = URL(string: profileImageService.avatarURL ?? "")
+        updateAvatar(url: url)
+    }
+    
+    private func updateAvatar(url: URL?) {
+        let url = url!
+        let options: KingfisherOptionsInfo = [.processor(RoundCornerImageProcessor(radius: Radius.heightFraction(0.5))),
+                                              .scaleFactor(UIScreen.main.scale),
+                                              .cacheOriginalImage]
+        avatarImageView.kf.indicatorType = .activity
+        avatarImageView.kf.setImage(with: url, options: options)
     }
     
 }
