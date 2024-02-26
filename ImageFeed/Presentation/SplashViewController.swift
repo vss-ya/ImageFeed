@@ -9,8 +9,8 @@ import UIKit
 
 final class SplashViewController: UIViewController {
     
-    private let AuthSegueIdentifier = "Auth"
-    private let TabBarStoryboardID = "TabBarViewController"
+    private let authSegueIdentifier = "Auth"
+    private let tabBarStoryboardID = "TabBarViewController"
 
     private let oauth2Service = OAuth2Service()
     private let oauth2TokenStorage = OAuth2TokenStorage()
@@ -21,7 +21,7 @@ final class SplashViewController: UIViewController {
         if let _ = oauth2TokenStorage.token {
             switchToTabBarController()
         } else {
-            performSegue(withIdentifier: AuthSegueIdentifier, sender: nil)
+            performSegue(withIdentifier: authSegueIdentifier, sender: nil)
         }
     }
 
@@ -39,7 +39,7 @@ final class SplashViewController: UIViewController {
             fatalError("Invalid Configuration")
         }
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
-        let tabBarController = storyboard.instantiateViewController(withIdentifier: TabBarStoryboardID)
+        let tabBarController = storyboard.instantiateViewController(withIdentifier: tabBarStoryboardID)
         window.rootViewController = tabBarController
     }
     
@@ -48,12 +48,12 @@ final class SplashViewController: UIViewController {
 extension SplashViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == AuthSegueIdentifier {
+        if segue.identifier == authSegueIdentifier {
             guard
                 let navigationController = segue.destination as? UINavigationController,
                 let viewController = navigationController.viewControllers[0] as? AuthViewController
             else {
-                fatalError("Failed to prepare for \(AuthSegueIdentifier)")
+                fatalError("Failed to prepare for \(authSegueIdentifier)")
             }
             viewController.delegate = self
         } else {

@@ -44,12 +44,12 @@ private extension OAuth2Service {
     
     private func authTokenRequest(code: String) -> URLRequest {
         let path = "/oauth/token"
-            + "?client_id=\(AccessKey)"
-            + "&client_secret=\(SecretKey)"
-            + "&redirect_uri=\(RedirectURI)"
+        + "?client_id=\(ApiConstants.accessKey)"
+        + "&client_secret=\(ApiConstants.secretKey)"
+        + "&redirect_uri=\(ApiConstants.redirectURI)"
             + "&code=\(code)"
             + "&grant_type=authorization_code"
-        let url = URL(string: path, relativeTo: OAuth2BaseURL)!
+        let url = URL(string: path, relativeTo: ApiConstants.oauth2BaseURL)!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         return request
@@ -68,40 +68,3 @@ private extension OAuth2Service {
     }
     
 }
-
-// MARK: - URLSession
-
-private enum NetworkError: Error {
-    case statusCode(Int)
-    case requestError(Error)
-}
-
-extension URLSession {
-    
-    func data(
-        for request: URLRequest,
-        completion: @escaping (Result<Data, Error>) -> Void
-    ) -> URLSessionTask {
-        let callCompletion: (Result<Data, Error>) -> Void = { result in
-            DispatchQueue.main.async {
-                completion(result)
-            }
-        }
-        let task = dataTask(with: request) { data, response, error in
-            if let error = error {
-                callCompletion(.failure(NetworkError.requestError(error)))
-                return
-            }
-            let statusCode = (response as! HTTPURLResponse).statusCode
-            if 200 ..< 300 ~= statusCode, let data = data {
-                callCompletion(.success(data))
-            } else {
-                callCompletion(.failure(NetworkError.statusCode(statusCode)))
-            }
-        }
-        task.resume()
-        return task
-    }
-    
-}
-
