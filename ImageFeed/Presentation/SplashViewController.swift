@@ -9,14 +9,14 @@ import UIKit
 
 final class SplashViewController: UIViewController {
     
+    private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
+    
     private let authSegueIdentifier = "Auth"
     private let tabBarStoryboardID = "TabBarViewController"
 
     private let oauth2Service = OAuth2Service()
     private let oauth2TokenStorage = OAuth2TokenStorage()
-    
-    private var profileService = ProfileService.shared
-    private var profileImageService = ProfileImageService.shared
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -31,9 +31,13 @@ final class SplashViewController: UIViewController {
             didAuthenticate(token)
         } else {
             let storyboard = UIStoryboard(name: "Main", bundle: .main)
-            let vc = storyboard.instantiateViewController(
+            guard let vc = storyboard.instantiateViewController(
                 withIdentifier: "AuthViewController"
-            ) as! AuthViewController
+            ) as? AuthViewController else
+            {
+                assertionFailure("Invalid Configuration")
+                return
+            }
             vc.delegate = self
             vc.modalPresentationStyle = .fullScreen
             present(vc, animated: true)
@@ -92,12 +96,13 @@ extension SplashViewController {
         let model = AlertModel(title: "Что-то пошло не так",
                                message: "Не удалось войти в систему",
                                buttonText: "Ок")
-        AlertPresenter(viewController: self).show(model) {}
+        AlertPresenter.show(model, self) {}
     }
     
     private func switchToTabBarController() {
         guard let window = UIApplication.shared.windows.first else {
-            fatalError("Invalid Configuration")
+            assertionFailure("Invalid Configuration")
+            return
         }
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
         let tabBarController = storyboard.instantiateViewController(withIdentifier: tabBarStoryboardID)

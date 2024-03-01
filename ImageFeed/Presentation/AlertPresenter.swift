@@ -7,15 +7,9 @@
 
 import UIKit
 
-class AlertPresenter {
-
-    weak var viewController: UIViewController?
-
-    init(viewController: UIViewController? = nil) {
-        self.viewController = viewController
-    }
-
-    func show(_ model: AlertModel, completion: @escaping (() -> Void)) {
+final class AlertPresenter {
+    
+    static func show(_ model: AlertModel, _ vc: UIViewController, completion: @escaping (() -> Void)) {
         let ac = UIAlertController(
             title: model.title,
             message: model.message,
@@ -25,7 +19,7 @@ class AlertPresenter {
         }
         ac.addAction(action)
         ac.view.accessibilityIdentifier = model.accessibilityIdentifier
-        viewController?.present(ac, animated: true, completion: nil)
+        vc.present(ac, animated: true, completion: nil)
     }
     
 }

@@ -16,11 +16,10 @@ final class ProfileViewController: UIViewController {
     private var descriptionLabel: UILabel!
     private var logoutButton: UIButton!
     
+    private let profileService: ProfileService = ProfileService.shared
+    private let profileImageService: ProfileImageService = ProfileImageService.shared
+    
     private var safeArea: UILayoutGuide { view.safeAreaLayoutGuide }
-    
-    private var profileService: ProfileService = ProfileService.shared
-    private var profileImageService: ProfileImageService = ProfileImageService.shared
-    
     private var profileImageServiceObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
@@ -155,9 +154,10 @@ extension ProfileViewController {
     }
     
     private func updateAvatar(url: URL?) {
-        let url = url!
-        let options: KingfisherOptionsInfo = [.processor(RoundCornerImageProcessor(radius: Radius.heightFraction(0.5))),
-                                              .scaleFactor(UIScreen.main.scale),
+        guard let url = url else {
+            return
+        }
+        let options: KingfisherOptionsInfo = [.scaleFactor(UIScreen.main.scale),
                                               .cacheOriginalImage]
         avatarImageView.kf.indicatorType = .activity
         avatarImageView.kf.setImage(with: url, options: options)

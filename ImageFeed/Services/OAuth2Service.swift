@@ -29,7 +29,7 @@ final class OAuth2Service {
         let task = urlSession.objectTask(with: request) { [weak self](result: Result<OAuthTokenResponseBody, Error>) in
             switch result {
             case .success(let response):
-                completion(.success(response.access_token))
+                completion(.success(response.accessToken))
             case .failure(let error):
                 Logger.logError(message: "\(error.localizedDescription)")
                 completion(.failure(error))

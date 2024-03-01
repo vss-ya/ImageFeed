@@ -18,6 +18,9 @@ final class ProfileService {
     private var currentTask: URLSessionTask?
     private var lastToken: String?
     
+    private  init() {
+    }
+    
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         if lastToken == token {
             return
@@ -30,7 +33,7 @@ final class ProfileService {
             switch data {
             case .success(let profileResult):
                 let username = profileResult.username
-                let name = "\(profileResult.first_name) \(profileResult.last_name ?? "")"
+                let name = "\(profileResult.firstName) \(profileResult.lastName ?? "")"
                 let loginName = "@\(profileResult.username)"
                 let bio = profileResult.bio ?? ""
                 
