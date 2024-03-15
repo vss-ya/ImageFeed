@@ -6,19 +6,40 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ImagesListCell: UITableViewCell {
     
     static let reuseIdentifier = "ImagesListCell"
-
-    @IBOutlet private var cellImage: UIImageView!
-    @IBOutlet private var likeButton: UIButton!
-    @IBOutlet private var dateLabel: UILabel!
     
-    func configure(image: UIImage?, likeImage: UIImage?, dateString: String) {
-        cellImage.image = image
-        likeButton.setImage(likeImage, for: .normal)
-        dateLabel.text = dateString
+    @IBOutlet var cellImage: UIImageView!
+    @IBOutlet var likeButton: UIButton!
+    @IBOutlet var dateLabel: UILabel!
+    
+    weak var delegate: ImagesListCellDelegate?
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cellImage.kf.cancelDownloadTask()
+        cellImage.image = nil
+        likeButton.setImage(nil, for: .normal)
+        dateLabel.text = ""
     }
     
+    @IBAction func likeButtonClicked() {
+        delegate?.imageListCellDidTapLike(self)
+    }
+    
+    func setIsLiked(_ isLiked: Bool) {
+        if isLiked {
+            likeButton.imageView?.image = UIImage(named: "like_button_on")
+        } else {
+            likeButton.imageView?.image = UIImage(named: "like_button_off")
+        }
+    }
+    
+}
+
+protocol ImagesListCellDelegate: AnyObject {
+    func imageListCellDidTapLike(_ cell: ImagesListCell)
 }
