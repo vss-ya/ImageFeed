@@ -31,23 +31,25 @@ final class ImagesListService {
     }
     
     func fetchPhotosNextPage() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            guard 
+                let self,
+                currentTask == nil
+            else {
                 return
             }
-            guard self.currentTask == nil else {
-                return
-            }
+            
             let request = makePageRequest(page: currentPage, perPage: perPage)
             let task = urlSession.objectTask(with: request) { (result: Result<[PhotoResult], Error>) in
                 DispatchQueue.main.async {
+                    self.currentTask = nil
                     switch result {
                     case .success(let photoResults):
                         let photos = photoResults.map {
                             return Photo(
                                 id: $0.id,
                                 size: CGSize(width: $0.width, height: $0.height),
-                                createdAt: self.dateFormatter.date(from: $0.createdAt),
+                                createdAt: self.dateFormatter.date(from: $0.createdAt ?? ""),
                                 welcomeDescription: $0.description,
                                 thumbImageURL: $0.urls.thumb,
                                 largeImageURL: $0.urls.regular,
@@ -56,13 +58,11 @@ final class ImagesListService {
                             )
                         }
                         self.photos.append(contentsOf: photos)
-                        NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil)
                         self.currentPage += 1
-                        self.currentTask = nil
                     case .failure(let error):
                         Logger.logError(message: "\(error.localizedDescription)")
-                        NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil)
                     }
+                    NotificationCenter.default.post(name: ImagesListService.didChangeNotification, object: nil)
                 }
             }
             task.resume()

@@ -14,6 +14,7 @@ final class ImagesListViewController: UIViewController {
     
     private let singleImageSegueIdentifier = "SingleImage"
     private let imagesListService = ImagesListService.shared
+    private let placeholderImage = UIImage(named: "placeholder_stub")
     private var photos: [Photo] = []
     
     private lazy var dateFormatter: DateFormatter = {
@@ -76,7 +77,7 @@ extension ImagesListViewController {
         cell.delegate = self
         cell.cellImage.kf.indicatorType = .activity
         cell.cellImage.kf.setImage(with: imageURL,
-                                   placeholder: UIImage(named: "placeholder_stub"))
+                                   placeholder: placeholderImage)
         { [weak self](result) in
             guard let self else {
                 return
@@ -147,7 +148,7 @@ extension ImagesListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let image = UIImage(named: "\(indexPath.row)") else {
+        guard let image = placeholderImage else {
             return 0
         }
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)

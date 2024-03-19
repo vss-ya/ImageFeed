@@ -14,7 +14,7 @@ final class ProfileLogoutService {
     
     static let shared = ProfileLogoutService()
     
-    private let keychainWrapper = KeychainWrapper.standard
+    private let oauth2TokenStorage = OAuth2TokenStorage()
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
     private let imagesListService = ImagesListService.shared
@@ -30,8 +30,7 @@ final class ProfileLogoutService {
         profileService.clean()
         profileImageService.clean()
         imagesListService.clean()
-        
-        keychainWrapper.removeAllKeys()
+        oauth2TokenStorage.clean()
         cleanCookies()
     }
     
