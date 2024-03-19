@@ -7,17 +7,17 @@
 
 import Foundation
 
-final class ImagesListService {
+public final class ImagesListService {
     
     static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
-    static let shared = ImagesListService()
+    public static let shared = ImagesListService()
     
     private let urlSession = URLSession.shared
     private let notificationCenter = NotificationCenter.default
     private let oauth2TokenStorage = OAuth2TokenStorage()
     private let dateFormatter = ISO8601DateFormatter()
     
-    private (set) var photos: [Photo] = []
+    private(set) var photos: [Photo] = []
     private var currentPage: Int = 1
     private var perPage: Int = 10
     private var currentTask: URLSessionTask?

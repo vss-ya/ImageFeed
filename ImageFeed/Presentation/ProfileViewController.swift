@@ -8,6 +8,12 @@
 import UIKit
 import Kingfisher
 
+public protocol ProfileViewControllerProtocol: AnyObject {
+    var presenter: ProfileViewPresenterProtocol? { get set }
+    func updateProfileDetails(_ profile: Profile?, _ avatarUrl: URL?)
+    func updateAvatar(_ url: URL?)
+}
+
 final class ProfileViewController: UIViewController {
     
     private var avatarImageView: UIImageView!
@@ -16,30 +22,14 @@ final class ProfileViewController: UIViewController {
     private var descriptionLabel: UILabel!
     private var logoutButton: UIButton!
     
-    private let profileService: ProfileService = ProfileService.shared
-    private let profileImageService: ProfileImageService = ProfileImageService.shared
-    private let profileLogoutService: ProfileLogoutService = ProfileLogoutService.shared
-    
+    private var pPresenter: ProfileViewPresenterProtocol?
     private var safeArea: UILayoutGuide { view.safeAreaLayoutGuide }
-    private var profileImageServiceObserver: NSObjectProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         prepare()
-        updateProfileDetails()
-        
-        profileImageServiceObserver = NotificationCenter.default
-            .addObserver(
-                forName: ProfileImageService.didChangeNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] in
-                guard let self else {
-                    return
-                }
-                self.updateAvatar($0)
-            }
+        presenter?.viewDidLoad()
     }
     
 }
@@ -53,7 +43,7 @@ extension ProfileViewController {
                                       preferredStyle: .alert)
         let okAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
             guard let self else { return }
-            self.profileLogoutService.logout()
+            self.presenter?.logout()
         }
         let cancelAction = UIAlertAction(title: "Нет", style: .cancel)
         
@@ -61,6 +51,33 @@ extension ProfileViewController {
         alert.addAction(cancelAction)
         
         present(alert, animated: true, completion: nil)
+    }
+    
+}
+
+// MARK: - ProfileViewControllerProtocol
+extension ProfileViewController: ProfileViewControllerProtocol {
+    
+    var presenter: ProfileViewPresenterProtocol? {
+        get { pPresenter }
+        set { pPresenter = newValue }
+    }
+    
+    func updateProfileDetails(_ profile: Profile?, _ avatarUrl: URL?) {
+        nameLabel.text = profile?.name
+        loginNameLabel.text = profile?.loginName
+        descriptionLabel.text = profile?.bio
+        updateAvatar(avatarUrl)
+    }
+    
+    func updateAvatar(_ url: URL?) {
+        guard let url else {
+            return
+        }
+        let options: KingfisherOptionsInfo = [.scaleFactor(UIScreen.main.scale),
+                                              .cacheOriginalImage]
+        avatarImageView.kf.indicatorType = .activity
+        avatarImageView.kf.setImage(with: url, options: options)
     }
     
 }
@@ -151,31 +168,8 @@ extension ProfileViewController {
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setImage(UIImage(named: "logout_button"), for: .normal)
         btn.addTarget(self, action: #selector(logoutAction), for: .touchUpInside)
+        btn.accessibilityIdentifier = "Logout"
         logoutButton = btn
-    }
-    
-    private func updateProfileDetails() {
-        let profile = profileService.profile
-        let url = URL(string: profileImageService.avatarURL ?? "")
-        nameLabel.text = profile?.name
-        loginNameLabel.text = profile?.loginName
-        descriptionLabel.text = profile?.bio
-        updateAvatar(url: url)
-    }
-    
-    private func updateAvatar(_ notification: Notification) {
-        let url = URL(string: profileImageService.avatarURL ?? "")
-        updateAvatar(url: url)
-    }
-    
-    private func updateAvatar(url: URL?) {
-        guard let url else {
-            return
-        }
-        let options: KingfisherOptionsInfo = [.scaleFactor(UIScreen.main.scale),
-                                              .cacheOriginalImage]
-        avatarImageView.kf.indicatorType = .activity
-        avatarImageView.kf.setImage(with: url, options: options)
     }
     
 }

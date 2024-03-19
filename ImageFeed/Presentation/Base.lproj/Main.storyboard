@@ -41,6 +41,7 @@
                                                 </imageView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TlR-OC-Py9" userLabel="Like Button">
                                                     <rect key="frame" x="335" y="4" width="42" height="42"/>
+                                                    <accessibility key="accessibilityConfiguration" identifier="Like"/>
                                                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                     <state key="normal" image="like_button_on"/>
                                                     <connections>
@@ -202,6 +203,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LlY-XA-3Xp">
                                 <rect key="frame" x="16" y="714" width="361" height="48"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <accessibility key="accessibilityConfiguration" identifier="Authenticate"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="H6t-wz-Lvk"/>
                                 </constraints>
@@ -246,7 +248,7 @@
         <!--Web-->
         <scene sceneID="mOl-Kp-ctk">
             <objects>
-                <viewController modalPresentationStyle="fullScreen" id="ysC-jV-2hI" userLabel="Web" customClass="WebViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WebViewController" modalPresentationStyle="fullScreen" id="ysC-jV-2hI" userLabel="Web" customClass="WebViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Zc7-j8-x1z">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -258,6 +260,9 @@
                                     <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
                                     <wkPreferences key="preferences"/>
                                 </wkWebViewConfiguration>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="UnsplashWebView"/>
+                                </userDefinedRuntimeAttributes>
                             </wkWebView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Nc-gq-jGA">
                                 <rect key="frame" x="8" y="8" width="48" height="48"/>
