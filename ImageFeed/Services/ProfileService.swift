@@ -18,7 +18,11 @@ final class ProfileService {
     private var currentTask: URLSessionTask?
     private var lastToken: String?
     
-    private  init() {
+    private  init() { }
+    
+    func clean() {
+        profile = nil
+        currentTask?.cancel()
     }
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
@@ -29,8 +33,8 @@ final class ProfileService {
         lastToken = token
         
         let request = makeRequest(token)
-        let task = urlSession.objectTask(with: request) {  (data: Result<ProfileResult, Error>) in
-            switch data {
+        let task = urlSession.objectTask(with: request) { (result: Result<ProfileResult, Error>) in
+            switch result {
             case .success(let profileResult):
                 let username = profileResult.username
                 let name = "\(profileResult.firstName) \(profileResult.lastName ?? "")"

@@ -18,6 +18,7 @@ final class ProfileViewController: UIViewController {
     
     private let profileService: ProfileService = ProfileService.shared
     private let profileImageService: ProfileImageService = ProfileImageService.shared
+    private let profileLogoutService: ProfileLogoutService = ProfileLogoutService.shared
     
     private var safeArea: UILayoutGuide { view.safeAreaLayoutGuide }
     private var profileImageServiceObserver: NSObjectProtocol?
@@ -34,7 +35,7 @@ final class ProfileViewController: UIViewController {
                 object: nil,
                 queue: .main
             ) { [weak self] in
-                guard let self = self else {
+                guard let self else {
                     return
                 }
                 self.updateAvatar($0)
@@ -46,7 +47,20 @@ final class ProfileViewController: UIViewController {
 // MARK: - Actions
 extension ProfileViewController {
     
-    @IBAction private func logoutAction() {
+    @objc private func logoutAction() {
+        let alert = UIAlertController(title: "Пока, пока!",
+                                      message: "Уверены, что хотите выйти?",
+                                      preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            guard let self else { return }
+            self.profileLogoutService.logout()
+        }
+        let cancelAction = UIAlertAction(title: "Нет", style: .cancel)
+        
+        alert.addAction(okAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true, completion: nil)
     }
     
 }
@@ -136,6 +150,7 @@ extension ProfileViewController {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setImage(UIImage(named: "logout_button"), for: .normal)
+        btn.addTarget(self, action: #selector(logoutAction), for: .touchUpInside)
         logoutButton = btn
     }
     
@@ -154,7 +169,7 @@ extension ProfileViewController {
     }
     
     private func updateAvatar(url: URL?) {
-        guard let url = url else {
+        guard let url else {
             return
         }
         let options: KingfisherOptionsInfo = [.scaleFactor(UIScreen.main.scale),

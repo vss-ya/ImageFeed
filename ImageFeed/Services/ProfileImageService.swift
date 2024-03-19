@@ -15,13 +15,17 @@ final class ProfileImageService {
     private (set) var avatarURL: String?
     
     private let urlSession = URLSession.shared
-    private let oauth2TokenStorage = OAuth2TokenStorage()
     private let notificationCenter = NotificationCenter.default
+    private let oauth2TokenStorage = OAuth2TokenStorage()
     
     private var currentTask: URLSessionTask?
     private var lastToken: String?
     
-    private  init() {
+    private  init() { }
+    
+    func clean() {
+        avatarURL = nil
+        currentTask?.cancel()
     }
     
     func fetchProfileImageURL(_ username: String, completion: @escaping (Result<String, Error>) -> Void) {
@@ -33,8 +37,8 @@ final class ProfileImageService {
         lastToken = token
         
         let request = makeRequest(token, username)
-        let task = urlSession.objectTask(with: request) {  (data: Result<UserResult, Error>) in
-            switch data {
+        let task = urlSession.objectTask(with: request) { (result: Result<UserResult, Error>) in
+            switch result {
             case .success(let userResult):
                 let avatarURL = userResult.profileImage.large.absoluteString
                 self.avatarURL = avatarURL

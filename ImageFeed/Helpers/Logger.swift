@@ -14,7 +14,7 @@ class Logger {
         let function = function
         let message = message
         let userInfo = userInfo
-        print("File: \(file), function: \(function), line: \(line), message: \(message), userInfo: \(userInfo)")
+        print("Error! File: \(file), function: \(function), line: \(line), message: \(message), userInfo: \(userInfo)")
     }
     
 }
