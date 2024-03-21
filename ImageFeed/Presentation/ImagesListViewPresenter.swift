@@ -18,7 +18,7 @@ public protocol ImagesListViewPresenterProtocol {
 }
 
 final class ImagesListViewPresenter: ImagesListViewPresenterProtocol {
-    var view: ImagesListViewControllerProtocol?
+    weak var view: ImagesListViewControllerProtocol?
     
     let imagesListService = ImagesListService.shared
     

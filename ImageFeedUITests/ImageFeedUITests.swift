@@ -37,7 +37,7 @@ final class ImageFeedUITests: XCTestCase {
         
         loginTextField.tap()
         loginTextField.typeText(email)
-        webView.tap()
+        app.buttons["Done"].tap()
         
         let passwordTextField = webView.descendants(matching: .secureTextField).element
         XCTAssertTrue(passwordTextField.waitForExistence(timeout: 5))
@@ -62,7 +62,6 @@ final class ImageFeedUITests: XCTestCase {
         let tables = app.tables
         
         let cell = tables.children(matching: .cell).element(boundBy: 0)
-        cell.swipeUp()
         
         sleep(3)
         
