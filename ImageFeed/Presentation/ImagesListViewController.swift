@@ -8,14 +8,23 @@
 import UIKit
 import Kingfisher
 
+public protocol ImagesListViewControllerProtocol: AnyObject {
+    var presenter: ImagesListViewPresenterProtocol? { get set }
+    var photos: [Photo] {get set}
+    func imagesListDidChange()
+}
+
 final class ImagesListViewController: UIViewController {
     
     @IBOutlet private var tableView: UITableView!
     
     private let singleImageSegueIdentifier = "SingleImage"
-    private let imagesListService = ImagesListService.shared
     private let placeholderImage = UIImage(named: "placeholder_stub")
-    private var photos: [Photo] = []
+    internal var photos: [Photo] = []
+    
+    lazy var presenter: ImagesListViewPresenterProtocol? = {
+        return ImagesListViewPresenter()
+    }()
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -28,8 +37,10 @@ final class ImagesListViewController: UIViewController {
         super.viewDidLoad()
         
         prepare()
-        addObservers()
-        fetchPhotosNextPage()
+        
+        UIBlockingProgressHUD.show()
+        presenter?.view = self
+        presenter?.viewDidLoad()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -48,18 +59,20 @@ final class ImagesListViewController: UIViewController {
     
 }
 
+extension ImagesListViewController: ImagesListViewControllerProtocol {
+    
+    func imagesListDidChange() {
+        UIBlockingProgressHUD.dismiss()
+        updateTableViewAnimated()
+    }
+    
+}
+
 // MARK: - Helpers
 extension ImagesListViewController {
     
     private func prepare() {
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
-    }
-    
-    private func addObservers() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(updateTableViewAnimated),
-                                               name: ImagesListService.didChangeNotification,
-                                               object: nil)
     }
     
     private func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
@@ -93,12 +106,10 @@ extension ImagesListViewController {
         }
     }
     
-    private func fetchPhotosNextPage() {
-        UIBlockingProgressHUD.show()
-        imagesListService.fetchPhotosNextPage()
-    }
-    
     @objc private func updateTableViewAnimated() {
+        guard let imagesListService = presenter?.imagesListService else {
+            return
+        }
         let oldCount = photos.count
         let newCount = imagesListService.photos.count
         photos = imagesListService.photos
@@ -110,7 +121,6 @@ extension ImagesListViewController {
                 tableView.insertRows(at: indexPaths, with: .automatic)
             } completion: { _ in }
         }
-        UIBlockingProgressHUD.dismiss()
     }
     
 }
@@ -140,8 +150,12 @@ extension ImagesListViewController: UITableViewDataSource {
 extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard !ProcessInfo.processInfo.arguments.contains("testMode") else {
+            return
+        }
         if indexPath.row + 1 == photos.count {
-            fetchPhotosNextPage()
+            UIBlockingProgressHUD.show()
+            presenter?.fetchPhotosNextPage()
         } else {
             return
         }
@@ -170,13 +184,16 @@ extension ImagesListViewController: UITableViewDelegate {
 extension ImagesListViewController: ImagesListCellDelegate {
     
     func imageListCellDidTapLike(_ cell: ImagesListCell) {
-        guard let indexPath = tableView.indexPath(for: cell) else {
+        guard 
+            let indexPath = tableView.indexPath(for: cell),
+            let presenter = presenter else
+        {
             return
         }
         let photo = photos[indexPath.row]
         let isLiked = !photo.isLiked
         UIBlockingProgressHUD.show()
-        imagesListService.changeLike(photoId: photo.id, isLike: isLiked) { [weak self](result) in
+        presenter.changeLike(photoId: photo.id, isLike: isLiked) { [weak self](result) in
             guard let self else {
                 return
             }
